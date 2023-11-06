@@ -7,7 +7,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,10 +17,9 @@ import java.util.function.Function;
 @Service
 public class JWTService {
 
-    /* Minimun accepted by JWT is an 256-bit key
-    https://generate-random.org/encryption-key-generator?count=1&bytes=256&cipher=aes-256-cbc-hmac-sha256&string=&password=
-    */
-    private static final String SECRET_KEY = "64pngZ5O5LM2CA469jPFJaj2oUA3Xtvdcix+4/nUpoDhbWNjeGFaY+y0cAgtVTNNo2IxhnwOPV/K0zG48e3Ii0ZXZsiAtw/Qx82lh0MRIoLkj1YNS2jxNOo6XUtZTMeVtXw/U9WGw8kKWzwQEKkJIbaVzOsxmSq5dKIlao8oiuZtg+nv1gQyRrkmwyPjeqXjij9Bl8x//Cea7rRZQ0/HqEbkLEzf0GJe4lczaYTaHvhkOHKsVTExevmjDdYqN07Bxniztl7VlMVQHHUVAcHy+5xZcnkyrUZI5tvScL3WMvoW4hWkoLMIlzDaZ9IazhonJUls06FuaUKF60d09B+6qXDTY2e6HV/dFaOwHUJg4as=";
+    // Minimun accepted by JWT is an 256-bit key
+    @Value("${application.security.jwt.secret-key}")
+    private String SECRET_KEY;
 
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -40,8 +39,8 @@ public class JWTService {
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 60 * 4))
-                .signWith(getSignInKey(), SignatureAlgorithm.ES256)
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000 ))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
